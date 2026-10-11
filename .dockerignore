@@ -1,0 +1,13 @@
+.git
+.env
+.env.*
+node_modules
+npm-debug.log*
+server.log
+coverage
+Dockerfile*
+compose*.yaml
+public/css/modern-overrides.css
+**/._*
+**/.DS_Store
+

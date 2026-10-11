@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f1df">
+  <meta name="description" content="Pix — личные сервисы с упором на приватность.">
+  <title>Pix — ваша цифровая экосистема</title>
+  <link rel="stylesheet" href="/pix-ui/tokens.css">
+  <link rel="stylesheet" href="/pix-ui/components.css">
+  <link rel="stylesheet" href="/pix/hub.css">
+  <link rel="stylesheet" href="/pix-ui/runtime.css?v=20261001-pixel8">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <script type="module" src="/pix-ui/launcher.js"></script>
+  <script defer src="/pix-ui/runtime.js?v=20261002-runtime-opt1"></script>
+</head>
+<body class="pix-ui" data-pix-service="hub" data-style="pixel">
+  <div class="pix-shell pix-ui">
+    <header class="topbar pix-topbar">
+      <a class="pix-brand" href="/pix/" aria-label="Pix — главная"><span class="pix-brand__mark">P</span><span>pix<span class="pix-brand__dot">.</span></span></a>
+      <span class="pix-topbar__label">Личные сервисы. Твои правила.</span>
+      <pix-launcher label="Приложения"></pix-launcher>
+    </header>
+    <div class="pix-workspace">
+      <aside class="pix-rail" aria-label="Навигация Pix Hub">
+        <div class="pix-rail__heading"><span>МОЁ ПРОСТРАНСТВО</span><span>01</span></div>
+        <nav class="pix-rail__nav" aria-label="Разделы">
+          <a class="pix-rail__link active" href="#services"><span aria-hidden="true">▤</span> Сервисы Pix</a>
+          <a class="pix-rail__link" href="#privacy-title"><span aria-hidden="true">◇</span> Приватность</a>
+        </nav>
+        <section class="pix-rail__note" aria-label="Статус экосистемы"><span class="pix-rail__glyph" aria-hidden="true">PIX</span><strong>Экосистема в разработке</strong><p>Статусы и реальные границы каждого сервиса указаны в карточках.</p></section>
+        <div class="pix-rail__foot"><span><i aria-hidden="true"></i> PIX / HUB</span><small>Личные сервисы</small></div>
+      </aside>
+      <main class="pix-main">
+        <section class="pix-hero" aria-labelledby="hero-title">
+          <div class="pix-hero__copy">
+            <div class="pix-hero__signal"><span aria-hidden="true"></span>ЭКОСИСТЕМА В РАЗРАБОТКЕ</div>
+            <h1 id="hero-title">Твоя цифровая<br><span>территория.</span></h1>
+            <p>Сервисы для общения, учёбы и личных данных. Приватность и контроль — цели Pix, а реальные настройки и границы данных зависят от каждого сервиса. Подробнее — в описаниях сервисов ниже.</p>
+            <a class="pix-hero__link" href="#services">Открыть сервисы <span aria-hidden="true">↓</span></a>
+          </div>
+          <div class="pix-hero__stamp" aria-hidden="true"><span>PIX</span><strong>P</strong><small>ЛИЧНОЕ<br>ПРОСТРАНСТВО</small></div>
+        </section>
+        <section class="pix-services" id="services" aria-labelledby="services-title">
+          <div class="pix-section-head"><div><span class="pix-kicker">ТВОИ ПРИЛОЖЕНИЯ</span><h2 id="services-title">Сервисы Pix</h2></div><span class="pix-counter">01 / 11 готов</span></div>
+          <div class="pix-service-grid">
+            <a class="pix-card pix-card--live" href="https://pix-message.duckdns.org/"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">MSG</span><span class="pix-state pix-badge" data-variant="warning"><i></i>ТЕСТИРУЕТСЯ</span></div><h3>Message</h3><p>Мессенджер; состояние доставки и шифрования зависит от устройства и переписки.</p><span class="pix-card__arrow">Открыть <b aria-hidden="true">↗</b></span></a>
+            <a class="pix-card pix-card--live" href="https://pix-study.duckdns.org/"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">STY</span><span class="pix-state pix-badge" data-variant="success"><i></i>ДОСТУПЕН</span></div><h3>Study</h3><p>Обучение, задания и материалы курса.</p><span class="pix-card__arrow">Открыть <b aria-hidden="true">↗</b></span></a>
+            <a class="pix-card pix-card--live" href="https://pix-message.duckdns.org/downloads/SecyxVPN-arm64.apk" download><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">VPN</span><span class="pix-state pix-badge" data-variant="success"><i></i>ЗАГРУЗКА</span></div><h3>VPN</h3><p>Secyx для Android. Клиент требует отдельной настройки сервера и профиля.</p><span class="pix-card__arrow">Скачать ARM64 <b aria-hidden="true">↓</b></span></a>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">DRV</span><span class="pix-state pix-state--planned">ПРЕВЬЮ</span></div><h3>Drive</h3><p>Личные файлы с шифрованием и понятным восстановлением. Сейчас доступен только локальный макет.</p><code class="pix-domain">drive.pix-hub.duckdns.org</code><a class="pix-card__arrow" href="https://drive.pix-hub.duckdns.org/">Открыть превью →</a></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">PIC</span><span class="pix-state pix-state--planned">ЛОКАЛЬНЫЙ ПРОТОТИП</span></div><h3>Photo</h3><p>Прототип фототеки; хранение пока локальное, синхронизации нет.</p><code class="pix-domain">pix-photo.duckdns.org · DNS есть, TLS нужен</code><span class="pix-card__arrow">Прототип, не сервис</span></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">NTS</span><span class="pix-state pix-state--planned">ЛОКАЛЬНЫЙ ПРОТОТИП</span></div><h3>Note</h3><p>Локальные заметки и экспорт; серверной синхронизации пока нет.</p><code class="pix-domain">pix-note.duckdns.org · DNS есть, TLS нужен</code><span class="pix-card__arrow">Прототип, не сервис</span></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">SRC</span><span class="pix-state pix-state--planned">ЛОКАЛЬНЫЙ ПИЛОТ</span></div><h3>Search</h3><p>Пилот метапоиска. Запросы передаются внешним поисковым источникам.</p><code class="pix-domain">pix-search.duckdns.org · DNS есть, TLS нужен</code><span class="pix-card__arrow">Пилот, не публичный сервис</span></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">VID</span><span class="pix-state pix-state--planned">В ПЛАНЕ</span></div><h3>Tube</h3><p>Видео, подписки и списки просмотра.</p><code class="pix-domain">pix-tube.duckdns.org · DNS есть, TLS нужен</code><span class="pix-card__arrow">Нужна проверка основы</span></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">MAIL</span><span class="pix-state pix-state--planned">В ПЛАНЕ</span></div><h3>Mail</h3><p>Почтовый адрес на домене, которым мы управляем.</p><code class="pix-domain">pix-mail.duckdns.org · MX и TLS нужны</code><span class="pix-card__arrow">Нужна почтовая инфраструктура</span></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">ACC</span><span class="pix-state pix-state--planned">В ПЛАНЕ</span></div><h3>Account</h3><p>Один профиль Pix с отдельными ключами для каждого сервиса.</p><code class="pix-domain">pix-account.duckdns.org · TLS нужен</code><span class="pix-card__arrow">Сначала безопасный OIDC-пилот</span></article>
+            <article class="pix-card pix-card--planned"><div class="pix-card__top"><span class="pix-card__icon" aria-hidden="true">KEY</span><span class="pix-state pix-state--planned">В ПЛАНЕ</span></div><h3>Vault</h3><p>Хранилище паролей с отдельным мастер-ключом.</p><span class="pix-card__arrow">Сначала аудит модели защиты</span></article>
+          </div>
+        </section>
+        <section class="pix-privacy" aria-labelledby="privacy-title"><div class="pix-privacy__mark" aria-hidden="true">◆</div><div><span class="pix-kicker">КАК МЫ ЗАЩИЩАЕМ ДАННЫЕ</span><h2 id="privacy-title">Приватность — это настройки и ключи.</h2><p>Вход в аккаунт Pix не расшифровывает сообщения, файлы или пароли. Для восстановления личной истории нужен твой ключ. Поисковые запросы передаются внешним источникам, а почта не всегда зашифрована от отправителя до получателя — мы покажем эти границы в каждом сервисе.</p></div></section>
+        <footer class="pix-footer"><span>PIX · HUB: pix-hub.duckdns.org</span><span>Меньше сбора. Больше контроля.</span><a href="https://pix-study.duckdns.org/">Pix Study ↗</a></footer>
+      </main>
+    </div>
+  </div>
+</body>
+</html>
+

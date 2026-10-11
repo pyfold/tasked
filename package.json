@@ -1,0 +1,23 @@
+{
+  "name": "ai-teacher",
+  "version": "1.0.0",
+  "description": "AI tutor: adaptive theory & tasks, voice via Azure Speech, teacher dashboard",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "test:postgres": "node tests/postgres-cas.integration.cjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "firebase-admin": "^14.5.0",
+    "pg": "^8.11.5"
+  }
+}
+

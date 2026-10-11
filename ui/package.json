@@ -1,0 +1,1 @@
+{"name":"pix-study-ui","private":true,"type":"module","scripts":{"build":"vite build"},"dependencies":{"pixel-retroui":"^2.1.0","react":"^19.2.8","react-dom":"^19.2.8"},"devDependencies":{"@tailwindcss/vite":"^4.3.3","tailwindcss":"^4.3.3","vite":"^8.3.0"}}

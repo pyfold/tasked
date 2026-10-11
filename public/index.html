@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tasked — Каталог тем</title>
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#f4f1df">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/corporate.css">
+<link rel="stylesheet" href="/css/pixel.css?v=20261001-1">
+<link rel="stylesheet" href="/ui/ui.css?v=20261001-8">
+<link rel="stylesheet" href="/pix-ui/tokens.css">
+<link rel="stylesheet" href="/css/refinements.css?v=20261011-redesign-3">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('tasked_theme')==='dark'?'dark':'light';document.documentElement.dataset.style='pixel'}catch(e){document.documentElement.dataset.theme='light';document.documentElement.dataset.style='pixel'}</script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><img src="/img/logo.svg" alt="tasked"><span class="word">tasked</span></a>
+  <div class="search"><span class="s-icon"><i data-icon="search"></i></span><input id="search" data-i18n-ph="searchPh" placeholder="Поиск тем…"></div>
+  <div class="top-actions">
+    <button class="theme-btn" data-theme-btn onclick="toggleTheme()"><i data-icon="sun"></i></button>
+    <div class="lang-switch"><button data-lang="ru" onclick="setLang('ru')">RU</button><button data-lang="kk" onclick="setLang('kk')">KZ</button></div>
+    <div class="user" id="userArea"></div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="side-title" data-i18n="nav">Навигация</div>
+    <button class="side-item active" onclick="filterCat('', this)"><i data-icon="book"></i><span data-i18n="allTopics">Все темы</span><span class="cnt" id="cntAll">0</span></button>
+    <div id="cats"></div>
+    <div class="side-title" data-i18n="account">Аккаунт</div>
+    <button class="side-item" id="sideAuth" onclick="onUserClick()"><i data-icon="user"></i><span data-i18n="loginAsStudent">Войти как ученик</span></button>
+    <a class="side-item" href="/student.html"><i data-icon="trophy"></i><span data-i18n="myTopics">Мои темы</span></a>
+    <a class="side-item" href="/teacher.html"><i data-icon="shield"></i><span data-i18n="teacherDash">Панель учителя</span></a>
+    <div class="stat-box">
+      <h4><i data-icon="lightbulb"></i><span data-i18n="howItWorks">Как это работает</span></h4>
+      <p class="muted" data-i18n="howP">ИИ готовит теорию и весь набор заданий заранее. Во время урока ответы проверяются сразу.</p>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="hero">
+      <div class="ring2"></div>
+      <span class="eyebrow" data-i18n="heroEyebrow">Учебная платформа с ИИ</span>
+      <h1 data-i18n="heroH">Выбери тему — остальное сделает ИИ</h1>
+      <p data-i18n="heroP">Теория, схемы и все задания подготовлены заранее. Во время урока ответы проверяются сразу.</p>
+      <div class="cta-row">
+        <button class="btn primary" id="heroGo" onclick="heroGo()"><span id="heroGoT" data-i18n="heroCta">Выбрать тему</span><i data-icon="arrowright"></i></button>
+        <button class="btn" id="heroAll" onclick="document.getElementById('topicsTitle').scrollIntoView({behavior:'smooth'})" style="display:none"><span data-i18n="allTopicsBtn">Все темы</span></button>
+        <button class="btn" id="heroAuth" onclick="onUserClick()"><i data-icon="user"></i><span data-i18n="loginAsStudent">Войти как ученик</span></button>
+      </div>
+      <div class="steps">
+        <div class="step"><div class="n">01</div><div class="t" data-i18n="step1t">Выбери тему</div><div class="d" data-i18n="step1d">Открой любую тему из каталога ниже</div></div>
+        <div class="step"><div class="n">02</div><div class="t" data-i18n="step2t">Изучи теорию</div><div class="d" data-i18n="step2d">ИИ объяснит тему простыми словами</div></div>
+        <div class="step"><div class="n">03</div><div class="t" data-i18n="step3t">Решай задания</div><div class="d" data-i18n="step3d">Задания идут от простого к сложному</div></div>
+      </div>
+    </div>
+    <div class="section-head">
+      <h2 class="section-title" id="topicsTitle" data-i18n="allTopics">Все темы</h2>
+      <span class="section-count" id="topicsCount"></span>
+    </div>
+    <div id="topics" class="grid"></div>
+    <div id="empty" class="empty-box" style="display:none">
+      <div class="empty-ic"><i data-icon="book"></i></div>
+      <p><b data-i18n="emptyT">Тем пока нет</b><br><span data-i18n="emptyP">Темы создаёт учитель в панели управления.</span></p>
+      <a class="btn" href="/teacher.html"><i data-icon="shield"></i><span data-i18n="openDash">Открыть панель учителя</span></a>
+    </div>
+    <footer class="footer">
+      <img src="/img/logo.svg" alt="tasked"><span><b>tasked</b> · <span data-i18n="footerTag">Уроки с ИИ</span></span>
+      <span class="spacer"></span>
+      <a href="/teacher.html" data-i18n="teacherDash">Панель учителя</a>
+    </footer>
+  </main>
+</div>
+
+<!-- language gate -->
+<div id="langGate">
+  <div class="box">
+    <img class="logo" src="/img/logo.svg" alt="tasked">
+    <div style="font-weight:800;letter-spacing:3px;font-size:13px;color:var(--muted)">TASKED</div>
+    <h1 data-i18n="gateTitle">Тілді таңдаңыз / Выберите язык</h1>
+    <p data-i18n="gateSub">Интерфейс, озвучка и распознавание речи будут на выбранном языке.</p>
+    <div class="lang-pick">
+      <button onclick="setLang('kk')">Қазақша<small>казахский · kk-KZ</small></button>
+      <button onclick="setLang('ru')">Русский<small>русский · ru-RU</small></button>
+    </div>
+  </div>
+</div>
+
+<!-- student auth modal -->
+<div class="modal-bg" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle" aria-describedby="authWhy" aria-hidden="true" tabindex="-1">
+  <div class="modal" style="width:420px">
+    <div class="modal-head">
+      <h3><i data-icon="user"></i><span id="authTitle" data-i18n="loginTitle">Вход ученика</span></h3>
+      <button class="btn ghost small" onclick="closeAuth()" data-i18n="close">Закрыть</button>
+    </div>
+    <div style="padding:20px 22px">
+      <p class="muted" id="authWhy" data-i18n="authWhy">Аккаунт нужен, чтобы сохранялся твой прогресс по темам.</p>
+      <label for="authEmail" data-i18n="authEmail">Почта</label>
+      <input id="authEmail" type="email" data-i18n-ph="authEmailPh" placeholder="you@example.com" autocomplete="email" onkeydown="if(event.key==='Enter')sendEmailCode()">
+      <button class="btn primary" style="width:100%;margin-top:12px" id="emailGo" onclick="sendEmailCode()" data-i18n="authSendCode">Отправить код на почту</button>
+      <div id="emailCodeRow" style="display:none;margin-top:12px">
+        <label for="emailCode" data-i18n="authCode">Код из письма</label>
+        <input id="emailCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" data-i18n-ph="authCodePh" placeholder="6 цифр" onkeydown="if(event.key==='Enter')verifyEmailCode()">
+        <button class="btn" id="verifyEmailGo" style="width:100%;margin-top:10px" onclick="verifyEmailCode()" data-i18n="authVerifyCode">Подтвердить код</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin:15px 0;color:var(--muted);font-size:12px"><span style="height:1px;background:var(--line);flex:1"></span><span data-i18n="authOr">или</span><span style="height:1px;background:var(--line);flex:1"></span></div>
+      <button class="btn" style="width:100%" onclick="signInGoogle()"><span aria-hidden="true" style="font-weight:800;margin-right:9px">G</span><span data-i18n="authGoogle">Продолжить с Google</span></button>
+      <p id="authMsg" class="err" style="margin-top:10px;font-size:13px" aria-live="polite"></p>
+      <p class="muted" style="font-size:12px;margin-top:12px" data-i18n="authNoPassword">Пароль не нужен. Отправим одноразовый код на вашу почту.</p>
+    </div>
+  </div>
+</div>
+
+<script src="/js/icons.js"></script>
+<script src="/js/theme.js"></script>
+<script defer src="/ui/ui.js?v=20261001-8"></script>
+<script src="/js/i18n.js"></script>
+<script>
+const ICONS_CYCLE = ['book','divide','atom','code','globe','flask','image','trending','chat','calculator'];
+let allTopics = [], currentCat = '', me = null, firebaseApp, firebaseAuth, authConfig;
+const requestedNext = new URLSearchParams(location.search).get('next');
+if (requestedNext && requestedNext.startsWith('/lesson.html?')) sessionStorage.setItem('tasked_after_auth', requestedNext);
+
+function tr(k) { return (window.i18n && i18n.t(k)) || k; }
+function paintUser() {
+  const area = document.getElementById('userArea');
+  if (me) {
+    const role = me.role === 'student' ? tr('roleStudent') : me.role === 'admin' ? tr('roleAdmin') : tr('roleTeacher');
+    area.innerHTML = `<div style="text-align:right"><div class="name"></div><div class="role">${role}</div></div>
+      <button class="btn small" onclick="onUserClick()"><i data-icon="logout"></i><span data-i18n="logout">Выйти</span></button>`;
+    area.querySelector('.name').textContent = me.login;
+    document.getElementById('sideAuth').innerHTML = '<i data-icon="logout"></i><span data-i18n="logout">Выйти</span>';
+    document.getElementById('heroAuth').style.display = 'none';
+  } else {
+    area.innerHTML = `<button class="btn primary small" onclick="onUserClick()"><i data-icon="user"></i><span data-i18n="login">Войти</span></button>`;
+    document.getElementById('sideAuth').innerHTML = '<i data-icon="user"></i><span data-i18n="loginAsStudent">Войти как ученик</span>';
+    document.getElementById('heroAuth').style.display = 'inline-flex';
+  }
+  paintIcons(area); paintIcons(document.getElementById('sideAuth'));
+  if (window.i18n) i18n.apply(i18n.get() || 'ru');
+}
+async function loadMe() {
+  try {
+    const r = await fetch('/api/auth/me');
+    me = r.ok ? await r.json() : null;
+  } catch (e) { me = null; }
+  paintUser();
+  if (allTopics.length) render();
+}
+async function onUserClick() {
+  if (me) { await fetch('/api/auth/logout', { method: 'POST' }); if (firebaseAuth) await firebaseAuth.signOut().catch(() => {}); me = null; paintUser(); return; }
+  document.getElementById('authMsg').textContent = '';
+  const m = document.getElementById('authModal');
+  openAccessibleModal(m, document.activeElement, document.getElementById('authEmail'));
+}
+function closeAuth() { closeAccessibleModal(document.getElementById('authModal')); }
+const modalFocusState = new WeakMap();
+function modalFocusable(modal) { return [...modal.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el => el.getClientRects().length && !el.closest('[hidden]')); }
+function openAccessibleModal(modal, trigger, preferred) {
+  modalFocusState.set(modal, trigger instanceof HTMLElement ? trigger : document.activeElement);
+  modal.style.display = 'flex'; modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
+  requestAnimationFrame(() => { const focusables = modalFocusable(modal); (preferred && focusables.includes(preferred) ? preferred : focusables[0] || modal).focus(); });
+}
+function closeAccessibleModal(modal) {
+  modal.style.display = 'none'; modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true');
+  const previous = modalFocusState.get(modal); modalFocusState.delete(modal);
+  if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
+}
+document.getElementById('authModal').addEventListener('keydown', event => {
+  const modal = event.currentTarget;
+  if (event.key === 'Escape') { event.preventDefault(); closeAuth(); return; }
+  if (event.key !== 'Tab') return;
+  const items = modalFocusable(modal); if (!items.length) { event.preventDefault(); modal.focus(); return; }
+  const first = items[0], last = items[items.length - 1];
+  if (!modal.contains(document.activeElement)) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+  else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+  else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+});
+document.getElementById('authModal').addEventListener('click', event => { if (event.target === event.currentTarget) closeAuth(); });
+function authMessage(message, error = false) {
+  const el = document.getElementById('authMsg'); el.textContent = message;
+  el.classList.toggle('err', error); el.classList.toggle('muted', !error);
+}
+async function setupFirebaseAuth() {
+  const r = await fetch('/api/auth/config'); authConfig = await r.json();
+  if (!authConfig.enabled) throw new Error(tr('authNeedsSetup'));
+  if (!window.firebase) {
+    for (const src of ['https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js', 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js']) {
+      await new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = src; script.onload = resolve; script.onerror = () => reject(new Error('Не удалось загрузить библиотеку входа.')); document.head.appendChild(script); });
+    }
+  }
+  firebaseApp = firebase.apps.find(x => x.name === 'tasked') || firebase.initializeApp(authConfig.firebase, 'tasked');
+  firebaseAuth = firebaseApp.auth(); return firebaseAuth;
+}
+async function exchangeFirebaseUser(user) {
+  const r = await fetch('/api/auth/firebase', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ idToken: await user.getIdToken(true) }) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error === 'auth_not_configured' ? 'Вход пока не настроен на сервере.' : data.error === 'email_not_verified' ? 'Подтвердите почту по ссылке из письма.' : 'Не удалось подтвердить вход. Попробуйте ещё раз.');
+  return data;
+}
+async function sendEmailCode() {
+  const email = document.getElementById('authEmail').value.trim(), btn = document.getElementById('emailGo'); btn.disabled = true;
+  try {
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error(tr('authBadEmail'));
+    const response = await fetch('/api/auth/email-code/send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error === 'email_auth_not_configured' ? 'Вход по коду ещё не настроен на сервере.' : data.error === 'email_wait_before_resend' ? 'Подождите минуту перед повторной отправкой.' : data.error === 'email_rate_limited' ? 'Превышен лимит отправки кодов. Попробуйте позже.' : 'Не удалось отправить письмо. Проверьте настройки сервиса.');
+    document.getElementById('emailCodeRow').style.display = 'block';
+    document.getElementById('emailCode').focus(); authMessage(tr('authMailSent'));
+  } catch (e) { authMessage(e.message || 'Не удалось отправить письмо.', true); }
+  finally { btn.disabled = false; }
+}
+async function verifyEmailCode() {
+  const email = document.getElementById('authEmail').value.trim(), code = document.getElementById('emailCode').value.trim();
+  const btn = document.getElementById('verifyEmailGo'); btn.disabled = true;
+  try {
+    if (!/^\d{6}$/.test(code)) throw new Error('Введите шестизначный код из письма.');
+    const auth = await setupFirebaseAuth();
+    const response = await fetch('/api/auth/email-code/verify', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code }) });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error === 'email_auth_not_configured' ? 'Вход по коду ещё не настроен на сервере.' : 'Код неверный или срок его действия истёк.');
+    await auth.signInWithCustomToken(data.customToken);
+  } catch (e) { authMessage(e.message || tr('authFailed'), true); }
+  finally { btn.disabled = false; }
+}
+async function signInGoogle() {
+  try { const auth = await setupFirebaseAuth(); await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  catch (e) { authMessage(e.message || 'Не удалось войти через Google.', true); }
+}
+function continueAfterAuth() {
+  const destination = sessionStorage.getItem('tasked_after_auth');
+  if (destination && destination.startsWith('/lesson.html?')) {
+    sessionStorage.removeItem('tasked_after_auth'); location.assign(destination);
+  }
+}
+async function initAuth() {
+  try {
+    const auth = await setupFirebaseAuth();
+    auth.onAuthStateChanged(async user => {
+      if (!user) return;
+      try { await exchangeFirebaseUser(user); await loadMe(); closeAuth(); continueAfterAuth(); }
+      catch (e) { authMessage(e.message || tr('authFailed'), true); }
+    });
+  } catch (e) { if (new URLSearchParams(location.search).has('auth')) authMessage(e.message || tr('authFailed'), true); }
+}
+
+function skels() {
+  const g = document.getElementById('topics');
+  g.innerHTML = '';
+  for (let i = 0; i < 6; i++) {
+    const d = document.createElement('div');
+    d.className = 'skel';
+    d.innerHTML = '<div class="row anim" style="height:14px;width:38%"></div>'
+      + '<div class="row anim" style="height:44px;width:52px;border-radius:12px;margin-top:14px"></div>'
+      + '<div class="row anim" style="height:18px;width:78%;margin-top:14px"></div>'
+      + '<div class="row anim" style="height:14px;width:94%;margin-top:10px"></div>'
+      + '<div class="row anim" style="height:14px;width:70%;margin-top:8px"></div>';
+    g.appendChild(d);
+  }
+}
+function lastTopic() {
+  try { return JSON.parse(localStorage.getItem('tasked_last') || 'null'); }
+  catch (e) { return null; }
+}
+function heroGo() {
+  if (!me) { onUserClick(); return; }
+  const lt = lastTopic();
+  if (lt && allTopics.some(t => t.id == lt.id)) { location.href = '/lesson.html?topic=' + lt.id; return; }
+  document.getElementById('topicsTitle').scrollIntoView({ behavior: 'smooth' });
+}
+function paintHeroGo() {
+  const lt = lastTopic();
+  const ok = lt && allTopics.some(t => t.id == lt.id);
+  const el = document.getElementById('heroGoT');
+  el.textContent = ok ? (i18n.t('continueT') + ': ' + lt.title) : i18n.t('heroCta');
+  document.getElementById('heroAll').style.display = ok ? 'inline-flex' : 'none';
+}
+async function loadTopics() {
+  skels();
+  try {
+    const response = await fetch('/api/topics');
+    if (!response.ok) throw new Error('topics unavailable');
+    allTopics = await response.json();
+    if (!Array.isArray(allTopics)) throw new Error('invalid topics');
+  } catch (e) {
+    document.getElementById('topics').innerHTML = `<div class="empty-box"><p><b>${tr('noConn')}</b></p><button class="btn" onclick="loadTopics()">${tr('retry') || 'Повторить'}</button></div>`;
+    document.getElementById('empty').style.display = 'none';
+    document.getElementById('topicsCount').textContent = '';
+    return;
+  }
+  document.getElementById('cntAll').textContent = allTopics.length;
+  const cats = [...new Set(allTopics.map(t => (t.description.match(/^\[(.+?)\]/) || [])[1]).filter(Boolean))];
+  const box = document.getElementById('cats');
+  box.innerHTML = '';
+  cats.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'side-item';
+    b.innerHTML = '<i data-icon="tag"></i><span></span>';
+    b.querySelector('span').textContent = c;
+    b.onclick = () => filterCat(c, b);
+    box.appendChild(b);
+  });
+  paintIcons(box);
+  render();
+}
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = allTopics.filter(t => {
+    const title = String(t.title || '');
+    const description = String(t.description || '');
+    return (!currentCat || description.startsWith('[' + currentCat + ']')) &&
+      (!q || title.toLowerCase().includes(q) || description.toLowerCase().includes(q));
+  });
+  const grid = document.getElementById('topics');
+  document.getElementById('empty').style.display = list.length ? 'none' : 'block';
+  document.getElementById('topicsCount').textContent = list.length ? String(list.length) : '';
+  grid.innerHTML = '';
+  list.forEach((t, i) => {
+    const description = String(t.description || '');
+    const cat = (description.match(/^\[(.+?)\]/) || [])[1];
+    const desc = description.replace(/^\[.+?\]\s*/, '') || tr('cardDescD');
+    const c = document.createElement('a');
+    c.className = 'card clickable topic-card';
+    c.href = me ? '/lesson.html?topic=' + encodeURIComponent(t.id) : '#';
+    c.addEventListener('click', event => { if (!me) { event.preventDefault(); onUserClick(); } });
+    const category = document.createElement('div');
+    category.className = 'eyebrow';
+    category.textContent = cat || tr('cardCatD');
+    const head = document.createElement('div');
+    head.className = 'head';
+    const tile = document.createElement('div');
+    tile.className = 'tile t' + (i % 4);
+    tile.innerHTML = `<i data-icon="${ICONS_CYCLE[i % ICONS_CYCLE.length]}"></i>`;
+    const title = document.createElement('h3');
+    title.textContent = String(t.title || '');
+    head.append(tile, title);
+    const summary = document.createElement('p');
+    summary.textContent = desc;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.innerHTML = '<i data-icon="checkcircle"></i><span data-i18n="cardMeta">Теория + задания + голос</span>';
+    const action = document.createElement('span');
+    action.className = 'btn topic-action';
+    action.innerHTML = '<span data-i18n="start">Начать</span><i data-icon="arrowright"></i>';
+    c.append(category, head, summary, meta, action);
+    grid.appendChild(c);
+  });
+  paintIcons(grid);
+  if (window.i18n) i18n.apply(i18n.get() || 'ru');
+  paintHeroGo();
+}
+document.getElementById('search').addEventListener('input', render);
+function filterCat(name, el) {
+  currentCat = name;
+  document.querySelectorAll('.side-item').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+initAuth(); loadMe(); loadTopics();
+if (new URLSearchParams(location.search).get('auth') === 'required') onUserClick();
+</script>
+</body>
+</html>
+

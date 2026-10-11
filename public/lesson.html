@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Урок — tasked</title>
+<link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#111711">
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/corporate.css">
+<link rel="stylesheet" href="/css/pixel.css?v=20261001-1">
+<link rel="stylesheet" href="/ui/ui.css?v=20261001-8">
+<link rel="stylesheet" href="/pix-ui/tokens.css">
+<link rel="stylesheet" href="/css/refinements.css?v=20261011-redesign-3">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('tasked_theme')==='light'?'light':'dark';document.documentElement.dataset.style='pixel'}catch(e){document.documentElement.dataset.theme='dark';document.documentElement.dataset.style='pixel'}</script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><img src="/img/logo.svg" alt="tasked"><span class="word">tasked</span></a>
+  <div class="top-actions">
+    <button class="btn small" id="fullscreenBtn" type="button" onclick="toggleLessonFullscreen()" data-i18n="fullscreenEnter">На весь экран</button>
+    <button class="theme-btn" data-theme-btn onclick="toggleTheme()"><i data-icon="sun"></i></button>
+    <div class="lang-switch"><button data-lang="ru" onclick="setLang('ru')">RU</button><button data-lang="kk" onclick="setLang('kk')">KZ</button></div>
+    <div class="user">
+      <div style="text-align:right"><div class="name" id="topicTitleTop">Урок</div><div class="role" id="sttLang">ru-RU</div></div>
+      <a href="/" class="btn small" title="Назад в каталог"><i data-icon="arrowleft"></i><span data-i18n="backCatalog">Назад в каталог</span></a>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="crumbs" id="crumbs"><b>Каталог</b> / …</div>
+  <div class="stepper" id="stepper">
+    <span class="s now" id="st1"><span class="dot"></span><span data-i18n="stTheory">Теория</span> <b id="theoryWindowN">1/2</b></span>
+    <span class="s" id="st2"><span class="dot"></span><span data-i18n="stTask">Задание</span> <b id="stTaskN"></b></span>
+    <span class="s" id="st3"><span class="dot"></span><span data-i18n="stDone">Готово</span></span>
+  </div>
+  <div class="lesson-grid" id="lessonGrid">
+    <section id="theoryPane">
+    <div class="theory-card fade-in">
+      <div class="kicker" data-i18n="theoryK">Шаг 1 · Теория</div>
+      <h1 id="topicTitle">Загрузка…</h1>
+      <div id="theoryBody" class="body muted">ИИ-учитель готовит теорию…</div>
+      <div id="theoryBlocks" class="theory-blocks"></div>
+      <div class="lesson-visual" id="theoryVisual" hidden>
+        <div class="visual-loading" id="theoryVisualLoading" data-i18n="visualLoading">Готовим учебную иллюстрацию…</div>
+        <img id="theoryVisualImg" alt="">
+        <p class="visual-caption" id="theoryVisualCaption"></p>
+      </div>
+      <div id="theoryErrorActions" class="theory-error-actions" hidden>
+        <button class="btn" id="theoryRetryBtn" onclick="retryTopicTheory()"><span data-i18n="retryTheory">Повторить подготовку</span></button>
+        <a class="btn ghost" id="theoryLoginBtn" href="/" hidden><span data-i18n="theoryLogin">Войти и вернуться к уроку</span></a>
+      </div>
+      <div class="callout"><i data-icon="mic"></i><span data-i18n="voiceHint">Не понял тему? Нажми «Голосовой помощник» — спроси учителя, он ответит голосом.</span></div>
+      <div class="btn-row">
+        <button class="btn small" onclick="replayTheory()"><i data-icon="volume"></i><span data-i18n="speakBtn">Озвучить</span></button>
+        <button class="btn small" onclick="listenLesson()"><i data-icon="play"></i><span data-i18n="listenAll">Слушать урок</span></button>
+        <select id="spdSel" style="width:auto;flex:none" title="Скорость озвучки" onchange="setSpeed(this.value)">
+          <option value="0.85">0.85x</option><option value="1" selected>1x</option><option value="1.15">1.15x</option>
+        </select>
+        <button class="btn small ghost" onclick="Voice.stopAll()"><i data-icon="volumex"></i><span data-i18n="stopBtn">Стоп</span></button>
+        <button class="btn small ghost" onclick="window.print()"><i data-icon="printer"></i><span data-i18n="printBtn">Печать</span></button>
+      </div>
+      <div class="theory-navigation">
+        <button id="theoryPrev" class="btn" onclick="moveTheory(-1)" disabled data-i18n="backBtn">Назад</button>
+        <span class="muted" id="theoryPageLabel">Окно 1 из 3</span>
+        <button id="theoryNext" class="btn primary" onclick="moveTheory(1)" data-i18n="nextTheoryWindow">Следующее окно</button>
+      </div>
+    </div>
+    </section>
+
+    <section id="taskPane" style="display:none">
+      <div class="task-card fade-in">
+        <div class="kicker" style="font-size:11.5px;font-weight:800;letter-spacing:1.2px;color:var(--faint);text-transform:uppercase;margin-bottom:6px" data-i18n="taskK">Шаг 2 · Задание</div>
+        <div class="head">
+          <h3><i data-icon="sparkles"></i><span id="taskTitle">Задание от ИИ</span></h3>
+          <span class="level-pill" id="levelPill">Уровень: старт</span>
+        </div>
+        <div id="feedbackBox" class="feedback" style="display:none"></div>
+        <div id="taskWrap">
+          <div class="task-meta"><div class="task-num" id="taskNum">ЗАДАЧА #1</div><span class="task-format" id="taskFormat"></span></div>
+          <div class="task-text" id="taskText">…</div>
+          <div class="lesson-visual task-visual" id="taskVisual" hidden>
+            <div class="visual-loading" id="taskVisualLoading" data-i18n="visualLoading">Готовим учебную иллюстрацию…</div>
+            <img id="taskVisualImg" alt="">
+            <p class="visual-caption" id="taskVisualCaption"></p>
+          </div>
+        </div>
+        <label for="answerInput" id="answerLbl" data-i18n="yourAnswer">Твой ответ</label>
+        <div id="optBox" class="opts" style="display:none"></div>
+        <div id="orderBox" class="order-list" style="display:none"></div>
+        <div id="matchBox" class="match-list" style="display:none"></div>
+        <textarea id="answerInput" rows="2" data-i18n-ph="answerPh" placeholder="Напиши ответ или нажми «Диктовать»" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitAnswer();}"></textarea>
+        <div class="btn-row">
+          <button class="btn primary grow" id="submitBtn" onclick="submitAnswer()"><i data-icon="check"></i><span data-i18n="check">Проверить</span></button>
+          <button class="btn" id="dictBtn" onclick="dictateAnswer()"><i data-icon="mic"></i><span data-i18n="dictate">Диктовать</span></button>
+        </div>
+        <p class="muted" id="status" style="margin-top:8px"></p>
+      </div>
+
+      <div class="attempts">
+        <h4 data-i18n="attempts">История попыток</h4>
+        <div class="chips" id="chips"><span class="muted" data-i18n="noAttempts">Здесь появятся твои попытки: верные и неверные.</span></div>
+        <div class="streak" id="streak">
+          <div class="lbl"><span data-i18n="masteryLbl">Освоение темы</span><b id="streakN">0%</b></div>
+          <div class="track"><div class="fill" id="streakFill"></div></div>
+        </div>
+      </div>
+      <button class="btn small theory-return" onclick="returnToTheory()" data-i18n="returnToTheory">Вернуться к теории</button>
+    </section>
+  </div>
+</div>
+
+<button id="voiceFab" onclick="openVoice()">
+  <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+  <span data-i18n="voiceAsst">Голосовой помощник</span>
+</button>
+<div id="voiceStatus"></div>
+<div id="caption"></div>
+<div id="xpToast"></div>
+
+<div class="modal-bg" id="voiceModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3><i data-icon="mic"></i><span data-i18n="askTeacher">Спросить ИИ-учителя</span></h3>
+      <div style="display:flex; gap:8px; align-items:center">
+        <button class="btn ghost small" id="soundBtn" onclick="toggleSound()" title="Звук"><i data-icon="volume"></i></button>
+        <button class="btn ghost small" onclick="testVoice()" data-i18n="testVoice">Проверить голос</button>
+        <button class="btn ghost small" onclick="closeVoice()" data-i18n="close">Закрыть</button>
+      </div>
+    </div>
+    <div class="messages" id="chatLog">
+      <div class="msg ai" id="greetMsg" data-i18n="greet">Привет! Я твой ИИ-учитель. Спроси меня о чём угодно по теме — голосом или текстом.</div>
+    </div>
+    <div class="assistant-prompts">
+      <button class="btn small" onclick="sendChat(tr('promptExampleQuestion'))" data-i18n="promptExample">Другой пример</button>
+      <button class="btn small" onclick="sendChat(tr('promptHintQuestion'))" data-i18n="promptHint">Подсказка</button>
+      <button class="btn small" onclick="sendChat(tr('promptUseQuestion'))" data-i18n="promptUse">Где пригодится?</button>
+    </div>
+    <div class="input-row">
+      <input id="chatInput" data-i18n-ph="askPh" placeholder="Спросить что-нибудь…" onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="btn primary" id="chatSendBtn" onclick="sendChat()" aria-label="Отправить вопрос"><i data-icon="send"></i></button>
+      <button class="btn ghost" id="micBtn" onclick="toggleMic()" title="Говорить"><i data-icon="mic"></i></button>
+    </div>
+  </div>
+</div>
+
+<div id="langGate">
+  <div class="box">
+    <img class="logo" src="/img/logo.svg" alt="tasked">
+    <div style="font-weight:800;letter-spacing:3px;font-size:13px;color:var(--muted)">TASKED</div>
+    <h1 data-i18n="gateTitle">Тілді таңдаңыз / Выберите язык</h1>
+    <p data-i18n="gateSub">Интерфейс, озвучка и распознавание речи будут на выбранном языке.</p>
+    <div class="lang-pick">
+      <button onclick="setLang('kk')">Қазақша<small>казахский · kk-KZ</small></button>
+      <button onclick="setLang('ru')">Русский<small>русский · ru-RU</small></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://aka.ms/csspeech/jsbrowserpackageraw"></script>
+<script src="/js/icons.js"></script>
+<script src="/js/theme.js"></script>
+<script src="/js/i18n.js"></script>
+<script src="/js/voice.js"></script>
+<script>
+const topicId = new URLSearchParams(location.search).get('topic');
+const $ = id => document.getElementById(id);
+let attemptNum = 0, lastAnswer = null, soundOn = true, lastTheory = '', lastTask = '', lessonDifficulty = 1;
+let curKind = 'short', turnPending = false;
+let theoryPages = [], theoryPageIndex = 0;
+let theoryLoadBusy = false;
+const chips = [];
+
+function curLang() { return (window.i18n && i18n.get()) || 'ru'; }
+function tr(k) { return (window.i18n && i18n.t(k)) || k; }
+async function toggleLessonFullscreen() {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch (error) { /* The page layout remains full width if fullscreen is unavailable. */ }
+}
+document.addEventListener('fullscreenchange', () => {
+  $('fullscreenBtn').textContent = tr(document.fullscreenElement ? 'fullscreenExit' : 'fullscreenEnter');
+});
+function studentKey() {
+  let k = localStorage.getItem('studentKey');
+  if (!k) { k = 'anon-' + Math.random().toString(36).slice(2, 10); localStorage.setItem('studentKey', k); }
+  return k;
+}
+async function refreshLangLabel() {
+  let provider = 'Fish Audio';
+  try {
+    const response = await fetch('/api/voice/config');
+    const config = response.ok ? await response.json() : null;
+    provider = config?.fishEnabled ? 'Fish Audio' : config?.azureEnabled ? 'Azure Speech' : tr('voiceUnavailable');
+  } catch (e) { provider = tr('voiceUnavailable'); }
+  $('sttLang').textContent = provider + ' · ' + Voice.sttLang();
+}
+function renderChips() {
+  if (!chips.length) return;
+  $('chips').innerHTML = chips.map(c =>
+    `<span class="chip-a ${c.ok ? 'good' : 'bad'}">${c.ok ? tr('good') : tr('miss')} · ${c.n}</span>`).join('');
+}
+function showXp(n) {
+  const el = $('xpToast');
+  if (!el) return;
+  el.textContent = '+' + n + ' XP';
+  el.classList.remove('show');
+  void el.offsetWidth;
+  el.classList.add('show');
+}
+function boom() {
+  const box = document.createElement('div');
+  box.className = 'confetti';
+  const colors = ['var(--ink)', 'var(--muted)', 'var(--acc)', 'var(--green)', 'var(--faint)'];
+  for (let i = 0; i < 30; i++) {
+    const s = document.createElement('i');
+    s.style.left = (Math.random() * 100) + 'vw';
+    s.style.background = colors[i % colors.length];
+    s.style.width = (6 + Math.random() * 6) + 'px';
+    s.style.height = (8 + Math.random() * 8) + 'px';
+    s.style.animationDuration = (1.6 + Math.random() * 1.6) + 's';
+    s.style.animationDelay = (Math.random() * 0.5) + 's';
+    box.appendChild(s);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4200);
+}
+function paintMastery(value, mastered = false) {
+  const percent = Math.max(0, Math.min(100, Number(value) || 0));
+  $('streakN').textContent = percent + '%';
+  $('streakFill').style.width = percent + '%';
+  $('streak').classList.toggle('done', mastered);
+}
+function paintDifficulty(value = lessonDifficulty) {
+  lessonDifficulty = Math.max(1, Math.min(5, Number(value) || 1));
+  const label = lessonDifficulty < 2.5 ? tr('lvlStart') : lessonDifficulty < 4 ? tr('lvlMid') : tr('lvlHigh');
+  $('levelPill').textContent = tr('lvl') + label;
+}
+function shuffled(values) {
+  const out = [...values];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+function renderTheory(data) {
+  const body = $('theoryBody'), blocks = $('theoryBlocks');
+  body.textContent = data.theory || '';
+  body.classList.toggle('muted', !data.theory);
+  blocks.replaceChildren();
+  if (!Array.isArray(data.theoryBlocks) || !data.theoryBlocks.length) return;
+  data.theoryBlocks.forEach((item, index) => {
+    const section = document.createElement('article');
+    section.className = 'theory-block';
+    const number = document.createElement('span');
+    number.className = 'theory-step'; number.textContent = String(index + 1).padStart(2, '0');
+    const content = document.createElement('div');
+    const title = document.createElement('h3'); title.textContent = item.title || '';
+    const text = document.createElement('p'); text.textContent = item.text || '';
+    content.append(title, text); section.append(number, content); blocks.appendChild(section);
+  });
+}
+function renderTheoryWindow() {
+  const page = theoryPages[theoryPageIndex];
+  if (!page) return;
+  $('theoryBody').textContent = page.text || '';
+  $('theoryBody').classList.toggle('muted', !page.text);
+  $('theoryBlocks').replaceChildren();
+  const section = document.createElement('article'); section.className = 'theory-block';
+  const number = document.createElement('span'); number.className = 'theory-step'; number.textContent = String(theoryPageIndex + 1).padStart(2, '0');
+  const content = document.createElement('div');
+  const heading = document.createElement('h3'); heading.textContent = page.title || '';
+  const body = document.createElement('p'); body.textContent = page.detail || '';
+  content.append(heading, body);
+  if (page.example) { const example = document.createElement('p'); example.className = 'theory-example'; example.textContent = page.example; content.appendChild(example); }
+  if (page.key) { const key = document.createElement('p'); key.className = 'theory-key'; key.textContent = page.key; content.appendChild(key); }
+  section.append(number, content); $('theoryBlocks').appendChild(section);
+  showTheoryVisual(page, theoryPageIndex);
+  const total = theoryPages.length;
+  $('theoryWindowN').textContent = `${theoryPageIndex + 1}/${total}`;
+  $('theoryPageLabel').textContent = curLang() === 'kk' ? `Терезе ${theoryPageIndex + 1}/${total}` : `Окно ${theoryPageIndex + 1} из ${total}`;
+  $('theoryPrev').disabled = theoryPageIndex === 0;
+  $('theoryNext').textContent = theoryPageIndex === total - 1 ? (attemptNum ? tr('returnToTask') : tr('startPractice')) : tr('nextTheoryWindow');
+}
+function xmlText(value) { return String(value || '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' }[ch])); }
+function freeDiagramSvg(spec) {
+  const items = (Array.isArray(spec?.items) ? spec.items : []).slice(0, 5);
+  if (items.length < 2) return '';
+  const title = xmlText(spec.title || '');
+  const palette = ['#295a75', '#7b91a4', '#567b8c', '#a27e51', '#617689'];
+  const heading = title ? `<text x="32" y="34" fill="#172637" font-size="16" font-weight="700">${title}</text>` : '';
+  let shapes = '';
+  if (spec.kind === 'bars') {
+    const max = Math.max(...items.map(item => Math.max(1, Number(String(item.value).replace(',', '.')) || 1)));
+    shapes = items.map((item, i) => {
+      const y = 58 + i * 31, amount = Number(String(item.value).replace(',', '.')) || max * 0.58;
+      return `<text x="32" y="${y + 14}" fill="#526273" font-size="13">${xmlText(item.label)}</text><rect x="220" y="${y}" width="${Math.max(14, Math.round(340 * amount / max))}" height="19" rx="7" fill="${palette[i % palette.length]}" opacity=".82"/><text x="574" y="${y + 14}" fill="#526273" font-size="12">${xmlText(item.value)}</text>`;
+    }).join('');
+  } else if (spec.kind === 'compare') {
+    const width = Math.floor(536 / items.length);
+    shapes = items.map((item, i) => {
+      const x = 32 + i * (width + 12);
+      return `<rect x="${x}" y="65" width="${width}" height="120" rx="14" fill="#f2f5f7" stroke="#d8e0e7"/><rect x="${x}" y="65" width="${width}" height="7" rx="3" fill="${palette[i % palette.length]}"/><text x="${x + 15}" y="105" fill="#172637" font-size="14" font-weight="700">${xmlText(item.label)}</text><text x="${x + 15}" y="132" fill="#526273" font-size="12">${xmlText(item.value)}</text>`;
+    }).join('');
+  } else {
+    const nodeW = Math.min(150, Math.floor(570 / items.length));
+    const gap = (640 - items.length * nodeW) / (items.length + 1);
+    shapes = items.map((item, i) => {
+      const x = gap + i * (nodeW + gap), y = spec.kind === 'cycle' ? (i % 2 ? 106 : 76) : 86;
+      const connector = i < items.length - 1 ? `<path d="M ${x + nodeW + 3} ${y + 41} H ${x + nodeW + gap - 6}" stroke="#b5c3cd" stroke-width="2" marker-end="url(#arrow)"/>` : '';
+      return `${connector}<rect x="${x}" y="${y}" width="${nodeW}" height="82" rx="14" fill="#f2f5f7" stroke="#d8e0e7"/><circle cx="${x + 17}" cy="${y + 18}" r="5" fill="${palette[i % palette.length]}"/><text x="${x + 14}" y="${y + 40}" fill="#172637" font-size="13" font-weight="700">${xmlText(item.label)}</text><text x="${x + 14}" y="${y + 61}" fill="#526273" font-size="11">${xmlText(item.value)}</text>`;
+    }).join('');
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0 0 L0 6 L7 3 z" fill="#b5c3cd"/></marker></defs><rect width="640" height="220" rx="18" fill="#ffffff"/>${heading}${shapes}</svg>`;
+}
+function showFreeVisual(kind, spec, caption) {
+  const wrap = $(kind + 'Visual'), img = $(kind + 'VisualImg');
+  const svg = freeDiagramSvg(spec);
+  if (!svg) { wrap.hidden = true; return; }
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  img.alt = caption || (curLang() === 'kk' ? 'Оқу сызбасы' : 'Учебная схема');
+  img.hidden = false; wrap.hidden = false; wrap.classList.remove('loading');
+  $(kind + 'VisualLoading').hidden = true;
+  $(kind + 'VisualCaption').textContent = caption || '';
+}
+let theoryVisualRun = 0;
+let theoryPhotoUrl = null;
+async function showTheoryVisual(page, index) {
+  const run = ++theoryVisualRun;
+  if (theoryPhotoUrl) { URL.revokeObjectURL(theoryPhotoUrl); theoryPhotoUrl = null; }
+  showFreeVisual('theory', page.visualSpec, page.title);
+  try {
+    const response = await fetch(`/api/topics/${encodeURIComponent(topicId)}/theory-image/${index}`, { cache: 'no-store' });
+    if (!response.ok) return;
+    const blob = await response.blob();
+    if (run !== theoryVisualRun || !blob.type.startsWith('image/')) return;
+    const url = URL.createObjectURL(blob);
+    theoryPhotoUrl = url;
+    const img = $('theoryVisualImg');
+    img.src = url;
+    img.alt = page.title || (curLang() === 'kk' ? 'Сабақ суреті' : 'Иллюстрация к уроку');
+    img.hidden = false;
+    $('theoryVisual').hidden = false;
+    $('theoryVisualCaption').textContent = page.title || '';
+  } catch (error) { /* Keep the local diagram when the photo is unavailable. */ }
+}
+function moveTheory(direction) {
+  const target = theoryPageIndex + direction;
+  if (target >= 0 && target < theoryPages.length) { theoryPageIndex = target; renderTheoryWindow(); return; }
+  if (direction > 0 && target === theoryPages.length) beginPractice();
+}
+async function beginPractice() {
+  $('theoryPane').style.display = 'none'; $('taskPane').style.display = 'block';
+  $('lessonGrid').classList.add('task-only'); setStep(2);
+  if (!attemptNum) await nextTurn(null);
+}
+function returnToTheory() {
+  $('taskPane').style.display = 'none'; $('theoryPane').style.display = 'block';
+  $('lessonGrid').classList.remove('task-only'); setStep(1); renderTheoryWindow();
+}
+function setStep(n) {
+  // 1 = theory loading, 2 = solving, 3 = finished
+  const map = { 1: ['now', '', ''], 2: ['done', 'now', ''], 3: ['done', 'done', 'now'] };
+  const st = map[n] || map[1];
+  ['st1', 'st2', 'st3'].forEach((id, i) => {
+    $(id).classList.remove('now', 'done');
+    if (st[i]) $(id).classList.add(st[i]);
+  });
+}
+
+// ---------------- lesson flow ----------------
+async function loadTopic() {
+  refreshLangLabel();
+  setStep(1);
+  let topics;
+  try {
+    const response = await fetch('/api/topics');
+    if (!response.ok) throw new Error('topics unavailable');
+    topics = await response.json();
+  } catch (e) {
+    $('topicTitle').textContent = tr('noConn');
+    $('theoryBody').textContent = location.protocol === 'file:' ? tr('theoryOpenFromServer') : tr('noConn');
+    $('submitBtn').disabled = true;
+    return;
+  }
+  const t = topics.find(x => x.id == topicId);
+  if (!t) { $('topicTitle').textContent = tr('topicMissing'); $('taskWrap').style.display = 'none'; $('submitBtn').disabled = true; return; }
+  $('topicTitle').textContent = t.title;
+  $('topicTitleTop').textContent = t.title;
+  $('taskTitle').textContent = tr('taskFromAi');
+  $('levelPill').textContent = tr('lvl') + tr('lvlStart');
+  try { localStorage.setItem('tasked_last', JSON.stringify({ id: t.id, title: t.title })); } catch (e) {}
+  $('crumbs').innerHTML = '';
+  $('crumbs').append(Object.assign(document.createElement('b'), { textContent: 'Каталог' }), ' / ' + t.title);
+  $('theoryPane').style.display = 'block'; $('taskPane').style.display = 'none'; $('lessonGrid').classList.remove('task-only');
+  await loadPreparedTheory();
+}
+async function loadPreparedTheory() {
+  if (theoryLoadBusy) return false;
+  theoryLoadBusy = true;
+  $('theoryErrorActions').hidden = true;
+  $('theoryBody').textContent = tr('theoryPreparing');
+  $('theoryBody').classList.add('muted');
+  let prepared = null;
+  for (let attempt = 0; attempt < 60; attempt++) {
+    try {
+      const response = await fetch(`/api/topics/${encodeURIComponent(topicId)}/theory?lang=${curLang()}`);
+      const result = await response.json().catch(() => ({}));
+      if (response.ok && result.status === 'ready') { prepared = result.theory[curLang()] || result.theory.ru; break; }
+      if (response.status === 401 || response.status === 403) {
+        $('theoryBody').textContent = tr('theoryNeedsLogin');
+        $('theoryErrorActions').hidden = false;
+        $('theoryRetryBtn').hidden = true;
+        $('theoryLoginBtn').hidden = false;
+        $('theoryLoginBtn').href = `/?auth=required&next=${encodeURIComponent(location.pathname + location.search)}`;
+        theoryLoadBusy = false;
+        return false;
+      }
+      if (!response.ok && response.status !== 202) {
+        $('theoryBody').textContent = result.error === 'openai_not_configured' ? tr('openaiSetupNeeded') : result.error === 'ai_error' || result.status === 'failed' ? tr('theoryGenerateFailed') : tr('theoryUnavailable');
+        $('theoryErrorActions').hidden = false;
+        $('theoryRetryBtn').hidden = false;
+        theoryLoadBusy = false;
+        return false;
+      }
+    } catch (e) {
+    $('theoryBody').textContent = location.protocol === 'file:' ? tr('theoryOpenFromServer') : tr('theoryUnavailable');
+      $('theoryErrorActions').hidden = false;
+      $('theoryRetryBtn').hidden = true;
+      theoryLoadBusy = false;
+      return false;
+    }
+    await new Promise(resolve => setTimeout(resolve, 900));
+  }
+  if (!prepared || !Array.isArray(prepared.pages) || prepared.pages.length < 3) {
+    $('theoryBody').textContent = tr('theoryUnavailable');
+    $('theoryErrorActions').hidden = false;
+    $('theoryRetryBtn').hidden = false;
+    theoryLoadBusy = false;
+    return false;
+  }
+  theoryPages = prepared.pages.slice(0, 3).map((page) => ({
+    title: page.title || '', text: '',
+    detail: page.text || '', example: page.example || '', key: page.key || '', visualSpec: page.visualSpec,
+  }));
+  theoryPageIndex = 0;
+  lastTheory = [prepared.intro, ...theoryPages.flatMap(page => [page.title, page.detail, page.example, page.key])].filter(Boolean).join('\n');
+  renderTheoryWindow();
+  theoryLoadBusy = false;
+  return true;
+}
+async function retryTopicTheory() {
+  if (!navigator.onLine) { $('theoryBody').textContent = tr('noConn'); return; }
+  await loadPreparedTheory();
+}
+
+async function nextTurn(answer) {
+  if (turnPending) return;
+  const answeredTaskNumber = answer !== null && answer !== undefined ? attemptNum : null;
+  turnPending = true;
+  lastAnswer = answer;
+    $('status').textContent = tr(answer === null || answer === undefined ? 'aiThinking' : 'checkingAnswer');
+  $('submitBtn').disabled = true;
+  $('dictBtn').disabled = true;
+  $('feedbackBox').style.display = 'none';
+  try {
+    let r, data;
+    for (let wait = 0; wait < 75; wait++) {
+      r = await fetch('/api/ai/turn', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topicId, studentKey: studentKey(), answer, expectedTask: answer == null ? undefined : lastTask, lang: curLang() })
+      });
+      data = await r.json();
+      if (r.status !== 202 || data.status !== 'preparing_first_task') break;
+      $('status').textContent = tr('firstTaskPreparing');
+      await new Promise(resolve => setTimeout(resolve, 1400));
+    }
+    if (r.status === 202) { $('status').textContent = tr('firstTaskUnavailable'); return; }
+    if (!r.ok || data.error) {
+      const map = { topic_not_found: tr('errTopic'), bad_request: tr('errTopic'), stale_task: tr('staleTask'), ai_error: tr('errAi'), openai_not_configured: tr('openaiSetupNeeded'), grading_unavailable: tr('gradingUnavailable'), first_task_unavailable: tr('firstTaskUnavailable'), unauthorized: tr('authRequired') };
+      $('status').textContent = map[data.error] || tr('errAi');
+      return;
+    }
+    paintMastery(data.mastery, data.mastered);
+    paintDifficulty(data.difficulty);
+    if (data.theory || (Array.isArray(data.theoryBlocks) && data.theoryBlocks.length)) {
+      lastTheory = [data.theory, ...(data.theoryBlocks || []).map(block => `${block.title || ''}. ${block.text || ''}`)].filter(Boolean).join('\n');
+      renderTheory(data);
+      // Legacy saved lessons may still include generated theory; new lessons use prefetched theory pages.
+    }
+    if (data.feedback) {
+      const fb = $('feedbackBox');
+      fb.textContent = data.feedback;
+      fb.className = 'feedback ' + (data.correct === true ? 'good' : data.correct === false ? 'bad' : '');
+      fb.style.display = 'block';
+    }
+    if (data.task) {
+      attemptNum++;
+      $('theoryPane').style.display = 'none'; $('taskPane').style.display = 'block'; $('lessonGrid').classList.add('task-only');
+      setStep(2);
+      lastTask = data.task;
+      renderOptions(data);
+      showFreeVisual('task', data.visualSpec, data.visualCaption);
+      const tw = $('taskWrap');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches && tw.animate) {
+        tw.getAnimations().forEach(animation => animation.cancel());
+        tw.animate([{ opacity: .65, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }],
+          { duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      }
+      $('stTaskN').textContent = '#' + attemptNum;
+      $('taskNum').textContent = tr('taskN') + attemptNum;
+      $('taskText').textContent = data.task;
+      $('answerInput').value = '';
+      $('status').textContent = '';
+      if (soundOn) Voice.speak(data.task).then(ok => { if (!ok) $('status').textContent = tr('voiceUnavailable'); });
+    } else {
+      setStep(3);
+      $('taskWrap').style.display = 'none';
+      $('answerInput').style.display = 'none';
+      $('answerLbl').style.display = 'none';
+      $('optBox').style.display = 'none';
+      $('orderBox').style.display = 'none';
+      $('matchBox').style.display = 'none';
+      $('submitBtn').style.display = 'none';
+      $('dictBtn').style.display = 'none';
+      $('status').textContent = tr('doneT');
+      if (!data.alreadyCompleted) { showXp(50); boom(); }
+      if (soundOn && data.feedback) Voice.speak(data.feedback).then(ok => { if (!ok) $('status').textContent = tr('voiceUnavailable'); });
+    }
+    if (data.correct === true || data.correct === false) {
+      chips.push({ ok: data.correct, n: answeredTaskNumber || attemptNum });
+      renderChips();
+      if (data.correct) showXp(10);
+    }
+  } catch (e) {
+    $('status').textContent = tr('noConn');
+  } finally {
+    turnPending = false;
+    if ($('taskWrap').style.display !== 'none') $('submitBtn').disabled = false;
+    if ($('dictBtn').style.display !== 'none') $('dictBtn').disabled = false;
+  }
+}
+
+async function submitAnswer() {
+  if (turnPending) return;
+  let a;
+  if (['choice', 'true_false', 'scenario_choice', 'evidence_choice', 'table_read'].includes(curKind)) {
+    const sel = document.querySelector('input[name="opt"]:checked');
+    if (!sel) { $('status').textContent = tr('pickOpt'); return; }
+    a = sel.value;
+  } else if (curKind === 'multiple_select') {
+    a = [...document.querySelectorAll('#optBox input[type="checkbox"]:checked')].map(input => input.value);
+    if (!a.length) { $('status').textContent = tr('pickOpt'); return; }
+  } else if (curKind === 'ordering') {
+    a = [...document.querySelectorAll('#orderBox .order-item')].map(item => item.dataset.value);
+    if (!a.length) { $('status').textContent = tr('writeAns'); return; }
+  } else if (curKind === 'matching' || curKind === 'categorize') {
+    a = {};
+    let complete = true;
+    document.querySelectorAll('#matchBox select').forEach(select => {
+      if (!select.value) complete = false;
+      a[select.dataset.left] = select.value;
+    });
+    if (!complete) { $('status').textContent = tr('matchMissing'); return; }
+  } else {
+    a = $('answerInput').value.trim();
+    if (!a) { $('status').textContent = tr('writeAns'); return; }
+  }
+  nextTurn(a);
+}
+function renderOptions(data) {
+  const formats = ['choice','true_false','multiple_select','ordering','matching','short_answer','fill_blank','numeric','categorize','diagnose_error','predict','scenario_choice','evidence_choice','table_read','explain'];
+  curKind = formats.includes(data.taskType) ? data.taskType : 'short_answer';
+  const box = $('optBox'), order = $('orderBox'), match = $('matchBox');
+  box.replaceChildren(); order.replaceChildren(); match.replaceChildren();
+  box.style.display = order.style.display = match.style.display = 'none';
+  $('answerInput').style.display = 'none';
+  $('answerLbl').style.display = 'block';
+  $('taskFormat').textContent = tr('format_' + curKind);
+
+  if (['choice', 'true_false', 'scenario_choice', 'evidence_choice', 'table_read', 'multiple_select'].includes(curKind)) {
+    const options = curKind === 'true_false' ? [
+      { value: 'true', label: tr('trueOpt') }, { value: 'false', label: tr('falseOpt') },
+    ] : (Array.isArray(data.options) ? data.options : []).map(value => ({ value, label: value }));
+    options.forEach((o) => {
+      const l = document.createElement('label');
+      l.className = 'opt';
+      const r = document.createElement('input');
+      r.type = curKind === 'multiple_select' ? 'checkbox' : 'radio'; r.name = curKind === 'multiple_select' ? 'multiOpt' : 'opt'; r.value = o.value;
+      const s = document.createElement('span');
+      s.textContent = o.label;
+      l.append(r, s);
+      box.appendChild(l);
+    });
+    box.style.display = 'flex';
+    $('answerLbl').textContent = curKind === 'multiple_select' ? tr('selectAll') : tr('chooseOpt');
+  } else if (curKind === 'ordering') {
+    const items = shuffled(Array.isArray(data.items) ? data.items : []);
+    if (items.length > 1 && items.every((value, index) => value === data.items[index])) items.push(items.shift());
+    items.forEach((value, index) => {
+      const row = document.createElement('div'); row.className = 'order-item'; row.dataset.value = value;
+      const label = document.createElement('span'); label.textContent = value;
+      const controls = document.createElement('div'); controls.className = 'order-controls';
+      for (const [direction, icon, key] of [[-1, '↑', 'moveUp'], [1, '↓', 'moveDown']]) {
+        const button = document.createElement('button'); button.type = 'button'; button.className = 'btn small ghost';
+        button.textContent = icon; button.setAttribute('aria-label', tr(key));
+        button.disabled = direction < 0 ? index === 0 : index === items.length - 1;
+        button.addEventListener('click', () => moveOrderItem(row, direction)); controls.appendChild(button);
+      }
+      row.append(label, controls); order.appendChild(row);
+    });
+    order.style.display = 'grid'; $('answerLbl').textContent = tr('typeOrder');
+  } else if (curKind === 'matching' || curKind === 'categorize') {
+    const pairs = Array.isArray(data.pairs) ? data.pairs : [];
+    const correctOrder = pairs.map(pair => pair.right);
+    const choices = shuffled(correctOrder);
+    if (choices.length > 1 && choices.every((value, index) => value === correctOrder[index])) choices.push(choices.shift());
+    pairs.forEach(pair => {
+      const row = document.createElement('label'); row.className = 'match-row';
+      const left = document.createElement('span'); left.textContent = pair.left;
+      const select = document.createElement('select'); select.dataset.left = pair.left;
+      const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.textContent = tr('matchPh'); select.appendChild(placeholder);
+      choices.forEach(value => { const option = document.createElement('option'); option.value = value; option.textContent = value; select.appendChild(option); });
+      row.append(left, select); match.appendChild(row);
+    });
+    match.style.display = 'grid'; $('answerLbl').textContent = curKind === 'categorize' ? tr('format_categorize') : tr('format_matching');
+  } else {
+    $('answerInput').style.display = 'block';
+    $('answerLbl').textContent = tr('answer_' + curKind) || tr('yourAnswer');
+    $('answerInput').inputMode = curKind === 'numeric' ? 'decimal' : 'text';
+    $('answerInput').placeholder = curKind === 'numeric' ? tr('numericPh') : tr('answerPh');
+  }
+}
+function moveOrderItem(row, direction) {
+  const target = direction < 0 ? row.previousElementSibling : row.nextElementSibling;
+  if (!target) return;
+  if (direction < 0) row.parentNode.insertBefore(row, target);
+  else row.parentNode.insertBefore(target, row);
+  [...row.parentNode.children].forEach((item, index) => {
+    const buttons = item.querySelectorAll('button');
+    buttons[0].disabled = index === 0;
+    buttons[1].disabled = index === row.parentNode.children.length - 1;
+  });
+}
+function replayTheory() { if (lastTheory) Voice.speak(lastTheory).then(ok => { if (!ok) $('status').textContent = tr('voiceUnavailable'); }); }
+function listenLesson() {
+  const t = ((lastTheory ? lastTheory + '\n' : '') + (lastTask || '')).slice(0, 1000);
+  if (t.trim()) Voice.speak(t).then(ok => { if (!ok) $('status').textContent = tr('voiceUnavailable'); });
+}
+function setSpeed(v) { try { localStorage.setItem('tasked_speed', v); } catch (e) {} }
+try { const s = localStorage.getItem('tasked_speed'); if (s) $('spdSel').value = s; } catch (e) {}
+
+// dictate answer via Azure STT in current language (own recognizer state)
+let dictRec = null, dictOn = false;
+let micRec = null, micOn = false;
+function showStatus(t) { const el = $('voiceStatus'); el.textContent = t; el.style.display = t ? 'block' : 'none'; }
+function stopRec(rec) {
+  if (!rec) return;
+  try { rec.stopContinuousRecognitionAsync(() => rec.close(), () => rec.close()); }
+  catch (e) { try { rec.close(); } catch (ignore) {} }
+}
+async function speechConfig() {
+  try {
+    const response = await fetch('/api/speech/config');
+    return response.ok ? await response.json() : null;
+  } catch (e) { return null; }
+}
+async function dictateAnswer() {
+  const cfg = await speechConfig();
+  if (!window.SpeechSDK || !cfg?.token) { $('status').textContent = tr('noStt'); return; }
+  if (dictOn) { stopRec(dictRec); dictRec = null; dictOn = false; $('dictBtn').classList.remove('listening'); $('status').textContent = ''; return; }
+  if (micOn) { stopRec(micRec); micRec = null; micOn = false; $('micBtn').classList.remove('listening'); }
+  try {
+    const sc = SpeechSDK.SpeechConfig.fromAuthorizationToken(cfg.token, cfg.region);
+    sc.speechRecognitionLanguage = Voice.sttLang();
+    dictRec = new SpeechSDK.SpeechRecognizer(sc, SpeechSDK.AudioConfig.fromDefaultMicrophoneInput());
+  } catch (e) { $('status').textContent = tr('noMic'); return; }
+  dictOn = true;
+  $('dictBtn').classList.add('listening');
+  $('status').textContent = tr('listening');
+  dictRec.recognized = (s, e) => {
+    if (e.result.reason !== SpeechSDK.ResultReason.RecognizedSpeech || !e.result.text) return;
+    $('answerInput').value = e.result.text;
+    $('status').textContent = '';
+    stopRec(dictRec); dictRec = null; dictOn = false;
+    $('dictBtn').classList.remove('listening');
+  };
+  dictRec.startContinuousRecognitionAsync(() => {}, (err) => { dictRec = null; dictOn = false; $('dictBtn').classList.remove('listening'); $('status').textContent = tr('noMic'); });
+}
+
+// ---------------- voice chat ----------------
+function toggleSound() {
+  soundOn = !soundOn;
+  $('soundBtn').innerHTML = `<i data-icon="${soundOn ? 'volume' : 'volumex'}"></i>`;
+  paintIcons($('soundBtn'));
+  if (!soundOn) Voice.stopAll();
+}
+function testVoice() {
+  addMsg('ai', tr('voiceTestOk'));
+  Voice.speak(tr('voiceTestSay'));
+}
+
+async function toggleMic() {
+  const cfg = await speechConfig();
+  if (!window.SpeechSDK || !cfg?.token) { showStatus(tr('sttOff')); return; }
+  if (micOn) {
+    stopRec(micRec); micRec = null;
+    micOn = false; $('micBtn').classList.remove('listening'); showStatus('');
+    return;
+  }
+  if (dictOn) { stopRec(dictRec); dictRec = null; dictOn = false; $('dictBtn').classList.remove('listening'); }
+  try {
+    const sc = SpeechSDK.SpeechConfig.fromAuthorizationToken(cfg.token, cfg.region);
+    sc.speechRecognitionLanguage = Voice.sttLang();
+    micRec = new SpeechSDK.SpeechRecognizer(sc, SpeechSDK.AudioConfig.fromDefaultMicrophoneInput());
+  } catch (e) { showStatus(tr('noMic')); return; }
+  micOn = true;
+  $('micBtn').classList.add('listening');
+  showStatus(tr('listeningChat'));
+  micRec.recognized = async (s, e) => {
+    if (e.result.reason !== SpeechSDK.ResultReason.RecognizedSpeech || !e.result.text) return;
+    showStatus('');
+    stopRec(micRec); micRec = null;
+    micOn = false; $('micBtn').classList.remove('listening');
+    await sendChat(e.result.text);
+  };
+  micRec.startContinuousRecognitionAsync(() => {}, () => {
+    micRec = null; micOn = false; $('micBtn').classList.remove('listening');
+    showStatus(tr('noMic'));
+  });
+}
+
+const chatHistory = [];
+let chatPending = false;
+function addMsg(who, text) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + who;
+  d.textContent = text;
+  $('chatLog').appendChild(d);
+  $('chatLog').scrollTop = $('chatLog').scrollHeight;
+}
+function openVoice() { const m = $('voiceModal'); m.style.display = 'flex'; m.classList.add('open'); $('chatInput').focus(); }
+function closeVoice() {
+  const m = $('voiceModal'); m.style.display = 'none'; m.classList.remove('open');
+  if (micOn) { stopRec(micRec); micRec = null; micOn = false; $('micBtn').classList.remove('listening'); }
+  Voice.stopAll(); showStatus('');
+}
+
+async function sendChat(forced) {
+  const q = String(forced !== undefined ? forced : $('chatInput').value).trim();
+  if (!q || chatPending) return;
+  chatPending = true;
+  $('chatSendBtn').disabled = true;
+  $('chatInput').value = '';
+  addMsg('me', q);
+  const thinking = document.createElement('div');
+  thinking.className = 'msg ai'; thinking.textContent = '…';
+  $('chatLog').appendChild(thinking);
+  const historyIndex = chatHistory.length;
+  chatHistory.push({ role: 'student', text: q });
+  try {
+    const r = await fetch('/api/ai/voice', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ topicId, currentTask: lastTask, history: chatHistory.slice(-10), lang: curLang() })
+    });
+    const data = await r.json();
+    if (!r.ok || data.error || !data.reply) {
+      thinking.textContent = data.error === 'openai_not_configured' ? tr('openaiSetupNeeded') : data.error === 'ai_error' ? tr('errAi') : data.error === 'topic_not_found' ? tr('errTopic') : tr('noConn');
+      chatHistory.splice(historyIndex, 1);
+    } else {
+      thinking.textContent = data.reply;
+      chatHistory.push({ role: 'teacher', text: data.reply });
+      if (soundOn && $('voiceModal').classList.contains('open')) Voice.speak(data.reply).then(ok => { if (!ok) showStatus(tr('voiceUnavailable')); });
+    }
+  } catch (e) {
+    thinking.textContent = tr('noConn');
+    chatHistory.splice(historyIndex, 1);
+  }
+  finally { chatPending = false; $('chatSendBtn').disabled = false; }
+  $('chatLog').scrollTop = $('chatLog').scrollHeight;
+}
+
+window.onLangChange = () => {
+  refreshLangLabel();
+  $('taskTitle').textContent = tr('taskFromAi');
+  paintDifficulty();
+  if (attemptNum) $('taskNum').textContent = tr('taskN') + attemptNum;
+  renderChips();
+  if (theoryPages.length && $('theoryPane').style.display !== 'none') renderTheoryWindow();
+  const tf = $('taskFormat');
+  if (tf && tf.textContent) tf.textContent = tr('format_' + curKind);
+  if (window.i18n) i18n.apply(curLang());
+  $('fullscreenBtn').textContent = tr(document.fullscreenElement ? 'fullscreenExit' : 'fullscreenEnter');
+};
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+loadTopic();
+</script>
+<script defer src="/ui/ui.js?v=20261001-8"></script></body>
+</html>
+
