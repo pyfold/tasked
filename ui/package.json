@@ -1,1 +1,25 @@
-{"name":"pix-study-ui","private":true,"type":"module","scripts":{"build":"vite build"},"dependencies":{"pixel-retroui":"^2.1.0","react":"^19.2.8","react-dom":"^19.2.8"},"devDependencies":{"@tailwindcss/vite":"^4.3.3","tailwindcss":"^4.3.3","vite":"^8.3.0"}}
+{
+  "name": "pix-study-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "framer-motion": "^12.23.12",
+    "three": "^0.181.0",
+    "@react-three/fiber": "^9.1.2",
+    "@react-three/drei": "^10.7.6",
+    "lucide-react": "^0.544.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.3.0"
+  }
+}
